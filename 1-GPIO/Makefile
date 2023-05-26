@@ -1,7 +1,7 @@
 obj-m += p78_gpio.o
 
 all:
-	make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -C /home/p7810456/rpi-3-kernel/ M=$(PWD) modules
+	make ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILE) -C /home/p7810456/rpi-3-kernel/ M=$(PWD) modules
 	arm-linux-gnueabihf-gcc write_to_led.c -o write_to_led
 
 clean:
