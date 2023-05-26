@@ -49,19 +49,17 @@ static int p78_close(struct inode *device_file, struct file *instance) {
 }
 
 static ssize_t p78_read(struct file *file, char __user *user, size_t size, loff_t *loff) {
-    printk("p78 read\n");
-
+    printk("p78: read\n");
     return size;
 }
 
 static ssize_t p78_write(struct file *file, const char *user, size_t size, loff_t *loff) {
-    printk("p78 write\n");
-
+    printk("p78: write\n");
     return size;
 }
 
 static int __init my_init(void) {
-    printk(KERN_INFO "p78 Module loaded\n");
+    printk("p78 Module loaded\n");
 
     // Register in /dev with dynamically allocated major number
     int alloc_retval = alloc_chrdev_region(&p78_device_num, 0, 1, "p78_testmod");
@@ -72,6 +70,11 @@ static int __init my_init(void) {
     }
 
     printk("p78: Device Major #: %d, Minor #: %d was created!\n", p78_device_num >> 20, p78_device_num && 0xfffff);
+
+    // Create device class
+    if((p78_class = class_create(THIS_MODULE, DRIVER_CLASS)) == NULL) {
+        printk("p78 - Can't create device class\n");
+    }
 
     // Create device file
     if((p78_device = device_create(p78_class, NULL, p78_device_num, NULL, DRIVER_NAME)) == NULL) {
@@ -92,8 +95,9 @@ static int __init my_init(void) {
 static void __exit my_exit(void) {
     cdev_del(&p78_device_cdev);
     device_destroy(p78_class, p78_device_num);
+    class_destroy(p78_class);
     unregister_chrdev_region(major_number, 1);
-    printk(KERN_INFO "p78 module unloaded\n");
+    printk("p78 module unloaded\n");
     return;
 }
 
